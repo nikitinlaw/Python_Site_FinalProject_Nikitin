@@ -239,3 +239,41 @@ class ListingTests(TestCase):
                 author=self.seller,
             ).exists()
         )
+
+
+    def test_search_by_keyword_location_and_price(self):
+        Listing.objects.create(
+            title="Куртка",
+            description="Зимняя куртка",
+            price=Decimal("1500.00"),
+            location="Москва",
+            category="outerwear",
+            owner=self.seller,
+            status="approved",
+        )
+
+        response = self.client.get(
+            reverse("home"),
+            {
+                "q": "Куртка",
+                "location": "Москва",
+                "min_price": "1000",
+                "max_price": "2000",
+            },
+        )
+
+        self.assertContains(response, "Куртка")
+        self.assertNotContains(response, "Носки")
+
+    def test_owner_can_delete_own_listing(self):
+        self.client.login(
+            username="seller",
+            password="SellerPass2026!",
+        )
+
+        response = self.client.post(
+            reverse("delete_listing", args=[self.listing.pk])
+        )
+
+        self.assertRedirects(response, reverse("my_listings"))
+        self.assertFalse(Listing.objects.filter(pk=self.listing.pk).exists())
