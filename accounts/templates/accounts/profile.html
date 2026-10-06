@@ -1,0 +1,12 @@
+<h1>Мой профиль</h1>
+
+<p>Пользователь: <strong>{{ user.username }}</strong></p>
+<p>E-mail: {{ user.email }}</p>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Сохранить</button>
+</form>
+
+<p><a href="/">На главную</a></p>

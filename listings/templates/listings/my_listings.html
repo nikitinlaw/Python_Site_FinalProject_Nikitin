@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Мои объявления</title>
+</head>
+<body>
+
+<h1>Мои объявления</h1>
+
+<p>
+    <a href="/">Главная</a> |
+    <a href="/create/">Разместить объявление</a>
+</p>
+
+{% for listing in listings %}
+
+    <hr>
+
+    <h2>{{ listing.title }}</h2>
+
+    <p>{{ listing.description }}</p>
+
+    <p>
+        Текущая цена:
+        <strong>{{ listing.price }} руб.</strong>
+    </p>
+
+    <p>
+        Статус объявления:
+        <strong>{{ listing.get_status_display }}</strong>
+    </p>
+
+    {% with revision=listing.pending_revision %}
+
+        {% if revision %}
+
+            <div>
+                <h3>Изменения на модерации</h3>
+
+                <p>
+                    Новый заголовок:
+                    {{ revision.title }}
+                </p>
+
+                <p>
+                    Новая цена:
+                    <strong>{{ revision.price }} руб.</strong>
+                </p>
+
+                <p>
+                    Новое местоположение:
+                    {{ revision.location }}
+                </p>
+
+                <p>
+                    Статус изменений:
+                    <strong>
+                        {{ revision.get_status_display }}
+                    </strong>
+                </p>
+            </div>
+
+        {% endif %}
+
+    {% endwith %}
+
+    <p>
+        <a href="{% url 'edit_listing' listing.pk %}">
+            Редактировать
+        </a>
+
+        |
+
+        <a href="{% url 'delete_listing' listing.pk %}">
+            Удалить
+        </a>
+    </p>
+
+{% empty %}
+
+    <p>У вас пока нет объявлений.</p>
+
+{% endfor %}
+
+</body>
+</html>

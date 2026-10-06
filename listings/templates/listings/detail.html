@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ listing.title }}</title>
+</head>
+
+<body>
+
+<p>
+    <a href="/">← Все объявления</a>
+</p>
+
+<h1>{{ listing.title }}</h1>
+
+{% if listing.image %}
+    <p>
+        <img
+            src="{{ listing.image.url }}"
+            alt="{{ listing.title }} — фото объявления"
+            style="max-width: 500px; height: auto;"
+        >
+    </p>
+{% endif %}
+
+<p>{{ listing.description }}</p>
+
+<p>
+    Стоимость аренды:
+    <strong>{{ listing.price }} руб.</strong>
+</p>
+
+<p>
+    Местоположение:
+    <strong>{{ listing.location }}</strong>
+</p>
+
+<p>
+    Категория:
+    {{ listing.get_category_display }}
+</p>
+
+<hr>
+
+<h2>Связаться с владельцем</h2>
+
+{% if user.is_authenticated %}
+
+    <p>
+        Владелец:
+        <strong>{{ listing.owner.username }}</strong>
+    </p>
+
+    {% if listing.owner.profile.phone %}
+        <p>
+            Телефон:
+            {{ listing.owner.profile.phone }}
+        </p>
+    {% endif %}
+
+    {% if listing.owner.profile.telegram %}
+        <p>
+            Telegram:
+            <a
+                href="https://t.me/{{ listing.owner.profile.telegram|cut:'@' }}"
+                target="_blank"
+            >
+                {{ listing.owner.profile.telegram }}
+            </a>
+        </p>
+    {% endif %}
+
+    {% if not listing.owner.profile.phone and not listing.owner.profile.telegram %}
+        <p>
+            Владелец пока не указал контактные данные.
+        </p>
+    {% endif %}
+
+{% else %}
+
+    <p>
+        Контактная информация доступна только зарегистрированным пользователям.
+    </p>
+
+    <p>
+        <a href="{% url 'login' %}?next={{ request.path }}">
+            Войти
+        </a>
+        |
+        <a href="{% url 'register' %}">
+            Зарегистрироваться
+        </a>
+    </p>
+
+{% endif %}
+
+
+<hr>
+
+<h2>Отзывы</h2>
+
+{% for review in listing.reviews.all %}
+    <p>
+        <strong>{{ review.author.username }}</strong>
+        — {{ review.rating }}/5
+    </p>
+
+    <p>{{ review.text }}</p>
+{% empty %}
+    <p>Отзывов пока нет.</p>
+{% endfor %}
+
+
+{% if user.is_authenticated and user != listing.owner %}
+
+    {% if user_review %}
+    <h3>Изменить свой отзыв</h3>
+{% else %}
+    <h3>Оставить отзыв</h3>
+{% endif %}
+
+    <form
+        method="post"
+        action="{% url 'add_review' listing.pk %}"
+    >
+        {% csrf_token %}
+
+        <p>
+            <label>Оценка:</label>
+
+            <select name="rating" required>
+                <option value="5" {% if user_review and user_review.rating == 5 %}selected{% endif %}>5</option>
+                <option value="4" {% if user_review and user_review.rating == 4 %}selected{% endif %}>4</option>
+                <option value="3" {% if user_review and user_review.rating == 3 %}selected{% endif %}>3</option>
+                <option value="2" {% if user_review and user_review.rating == 2 %}selected{% endif %}>2</option>
+                <option value="1" {% if user_review and user_review.rating == 1 %}selected{% endif %}>1</option>
+            </select>
+        </p>
+
+        <p>
+            <label>Отзыв:</label><br>
+
+            <textarea
+                name="text"
+                rows="5"
+                cols="50"
+                required
+            >{% if user_review %}{{ user_review.text }}{% endif %}</textarea>
+        </p>
+
+        <button type="submit">
+            {% if user_review %}
+                Сохранить изменения
+            {% else %}
+                Отправить отзыв
+            {% endif %}
+        </button>
+    </form>
+
+{% endif %}
+
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Аренда одежды</title>
+</head>
+
+<body>
+
+<h1>Аренда одежды</h1>
+
+{% if user.is_authenticated %}
+
+    <p>
+        Вы вошли как <strong>{{ user.username }}</strong>
+    </p>
+
+    {% if user.is_staff %}
+
+        <p>
+            <strong>Роль: модератор / администратор</strong>
+        </p>
+
+        <p>
+            <a href="/admin/">Перейти к модерации</a>
+            |
+            <a href="{% url 'logout' %}">Выйти</a>
+        </p>
+
+    {% else %}
+
+        <p>
+            <a href="{% url 'create_listing' %}">Разместить объявление</a>
+            |
+            <a href="{% url 'my_listings' %}">Мои объявления</a>
+            |
+            <a href="{% url 'profile' %}">Профиль</a>
+            |
+            <a href="{% url 'logout' %}">Выйти</a>
+        </p>
+
+    {% endif %}
+
+{% else %}
+
+    <p>
+        <a href="{% url 'login' %}">Войти</a>
+        |
+        <a href="{% url 'register' %}">Регистрация</a>
+    </p>
+
+{% endif %}
+
+
+<hr>
+
+<h2>Поиск объявлений</h2>
+
+<form method="get">
+
+    {{ search_form.as_p }}
+
+    <button type="submit">
+        Найти
+    </button>
+
+    <a href="/">
+        Сбросить фильтры
+    </a>
+
+</form>
+
+
+<h2>Объявления</h2>
+
+{% for listing in listings %}
+
+    <hr>
+
+    <h2>
+        <a href="{% url 'listing_detail' listing.pk %}">
+            {{ listing.title }}
+        </a>
+    </h2>
+
+    {% if listing.image %}
+        <p>
+            <a href="{% url 'listing_detail' listing.pk %}">
+                <img
+                    src="{{ listing.image.url }}"
+                    alt="{{ listing.title }} — фото объявления"
+                    style="max-width: 250px; height: auto;"
+                >
+            </a>
+        </p>
+    {% endif %}
+
+    <p>{{ listing.description }}</p>
+
+    <p>
+        <strong>{{ listing.price }} руб.</strong>
+    </p>
+
+    <p>{{ listing.location }}</p>
+
+    <p>{{ listing.get_category_display }}</p>
+
+    <p>
+        <a href="{% url 'listing_detail' listing.pk %}">
+            Подробнее
+        </a>
+    </p>
+
+{% empty %}
+
+    <p>
+        По вашему запросу объявлений не найдено.
+    </p>
+
+{% endfor %}
+
+</body>
+</html>

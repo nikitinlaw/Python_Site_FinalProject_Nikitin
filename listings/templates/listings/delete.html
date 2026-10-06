@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Удалить объявление</title>
+</head>
+<body>
+    <h1>Удалить объявление</h1>
+
+    <p>
+        Вы действительно хотите удалить
+        <strong>{{ listing.title }}</strong>?
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <button type="submit">
+            Да, удалить
+        </button>
+    </form>
+
+    <p>
+        <a href="{% url 'my_listings' %}">
+            Отмена
+        </a>
+    </p>
+</body>
+</html>
